@@ -1,0 +1,39 @@
+# Local environments
+.env
+.venv/
+venv/
+env/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Private project assets that are intentionally excluded
+data/raw/
+data/private/
+data/processed/
+models/
+artifacts/models/
+*.pkl
+*.joblib
+*.pickle
+*.npz
+*.xlsx
+
+# Logs and temporary outputs
+*.log
+tmp/
+cache/
+results/
+outputs/*
+!outputs/.gitkeep
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,19 @@
+{
+  "release_type": "paper_companion_showcase",
+  "prediction_mode": "qualitative_demo_only",
+  "ships_trained_model": false,
+  "ships_training_data": false,
+  "ships_full_feature_engineering": false,
+  "tendency_bands": {
+    "low": [0.0, 0.40],
+    "medium": [0.40, 0.68],
+    "high": [0.68, 1.0]
+  },
+  "applicability_policy": {
+    "max_smiles_length": 80,
+    "max_heavy_atom_proxy": 60,
+    "allowed_atom_tokens": ["B", "C", "N", "O", "P", "S", "F", "Cl", "Br", "I"],
+    "notes": "This is a transparent demo boundary, not the manuscript AD implementation."
+  }
+}
+

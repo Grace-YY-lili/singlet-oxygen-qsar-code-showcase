@@ -1,0 +1,7 @@
+molecule_id,smiles,note
+demo_phenol,c1ccccc1O,public structure example; no measured target is included
+demo_aniline,Nc1ccccc1,public structure example; no measured target is included
+demo_pyridine,n1ccccc1,public structure example; no measured target is included
+demo_imidazole,c1ncc[nH]1,public structure example; no measured target is included
+demo_dichlorobenzene,Clc1cccc(Cl)c1,public structure example; no measured target is included
+

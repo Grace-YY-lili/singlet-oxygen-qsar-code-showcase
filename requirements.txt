@@ -1,0 +1,4 @@
+# The demo pipeline runs with the Python standard library.
+# matplotlib is optional and is used only to draw the demo summary figure.
+matplotlib>=3.7
+
