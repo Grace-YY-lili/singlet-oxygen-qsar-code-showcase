@@ -131,23 +131,6 @@ GitHub release, a cleaner repository name is recommended, for example:
 Using a dedicated public repository avoids exposing internal version history or
 mixing this curated release with other research workspaces.
 
-## Reproducibility Limits
-
-This public repository intentionally excludes:
-
-- Raw and processed training data.
-- Train/validation/test split files.
-- Complete CDFT descriptor tables.
-- Trained model weights and preprocessing objects.
-- Manuscript result figures and figure source tables.
-- Hyperparameter search logs and internal experiment records.
-- Full training, ablation, and paper-result regeneration scripts.
-- Private paths, caches, notebooks, logs, and historical failed outputs.
-
-The repository supports workflow-level readability and interface demonstration.
-It does not support result-level reproduction of the manuscript metrics,
-predictions, or figures.
-
 ## Citation
 
 If this repository is used while discussing the study, cite the accompanying
