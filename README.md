@@ -1,144 +1,103 @@
-# Singlet Oxygen QSAR: Code Showcase
+# Singlet-Oxygen Reactivity: Structure, Electronics and Residual Learning
 
-This repository is a lightweight code showcase accompanying a QSAR study of
-organic pollutant reactivity toward singlet oxygen (1O2). It contains selected
-Python modules that illustrate the workflow style used in the study. It is not
-a full implementation and not a reproduction package.
+**A research companion for interpretable prediction of organic pollutant reactivity toward singlet oxygen (¹O₂).**
 
-The public release is intentionally small. Its purpose is to show the coding
-structure, data-flow boundaries, and interface design without publishing the
-private dataset, optimized model artifacts, manuscript figures, or result
-regeneration workflow.
+This repository introduces the study's RDKit–CDFT residual-learning framework and provides a runnable SMILES workflow example for exploring structure-based screening.
 
-## Research Goal
+[Companion web application](https://grace-li01-singlet-oxygen-rate-tendency-predictor.hf.space)
 
-The private project studies how molecular structure and electronic descriptors
-can be combined to estimate 1O2 reaction-rate tendency. The full research
-workflow evaluates structural descriptors, CDFT electronic descriptors,
-conservative fusion logic, applicability-domain checks, and interpretation
-analyses. Those private assets are not released here.
+## Research overview
 
-## Method Overview
+The study combines molecular structure and electronic properties to predict second-order reaction rate constants, expressed as log₁₀*k* with *k* in M⁻¹ s⁻¹.
 
-The manuscript workflow is summarized by four ideas:
+- **Structural baseline:** 29 RDKit descriptors capture functional groups, molecular frameworks and physicochemical properties.
+- **Electronic correction:** 20 conceptual density functional theory (CDFT) descriptors model the structural branch's out-of-fold residuals, scaled by a fixed coefficient of 0.20.
+- **Chemical interpretation:** SHAP attribution, response surfaces and individual prediction decompositions connect the model's internal decisions with structure–reactivity relationships.
 
-- Structural context from SMILES-derived molecular descriptors.
-- Electronic correction from CDFT descriptors supplied by quantum-chemistry
-  calculations.
-- Conservative fusion logic for the final prediction route.
-- Applicability-domain and interpretation checks to avoid over-reading model
-  outputs.
+### How the two branches work together
 
-The public demo keeps only the interface shape: SMILES input, lightweight
-descriptor extraction, a qualitative tendency band, a demo applicability label,
-and optional local demo output. The trained manuscript models, complete feature
-tables, full split definitions, final figures, and result-regeneration scripts
-are not included.
+The study's prediction architecture separates structural recognition from electronic refinement:
 
-## Workflow Overview
-
-```text
-SMILES examples
-      |
-      v
-Lightweight descriptor view
-      |
-      v
-Demo applicability assessment
-      |
-      v
-Qualitative model interface
-      |
-      v
-Screening-style output table
+```mermaid
+flowchart LR
+    S["SMILES"] --> B["RDKit branch<br/>Structural baseline"]
+    E["CDFT descriptors"] --> C["Electronic branch<br/>Predicted residual × 0.20"]
+    B --> F["Final log₁₀k prediction"]
+    C --> F
+    classDef structure fill:#e7f3f1,stroke:#368c82,color:#173b37
+    classDef electronic fill:#f9eee2,stroke:#bc864c,color:#563b20
+    classDef fusion fill:#eeebf7,stroke:#8170ac,color:#342951
+    class S,B structure
+    class E,C electronic
+    class F fusion
 ```
 
-The private research workflow contains additional steps for CDFT descriptor
-curation, feature selection, model optimization, validation, and manuscript
-figure generation. Those steps are represented here only as clean interfaces or
-documentation boundaries.
+**Final prediction = structural baseline + 0.20 × predicted electronic residual**, with both contributions expressed on the log₁₀*k* scale.
 
-## What Is Included
+Learning residuals focuses the electronic branch on molecule-specific departures from the structural baseline. On the original rate scale, this correction becomes a multiplicative adjustment to the baseline rate. This connects the computational design to a chemical question: how does a molecule's electronic environment shift its reactivity relative to the expectation from its structure?
 
-- A small qualitative SMILES demo in `scripts/run_demo.py`.
-- A compact public package in `src/qsar_showcase/`.
-- Five public example SMILES without target values.
-- Environment files and `.gitignore` tuned for a public code repository.
-- `OPEN_SOURCE_CURATION_REPORT.md`, documenting what was included and excluded.
+Internal decision analysis follows this decomposition. Two-dimensional response surfaces examine how electronic responses vary with structural context, while individual prediction analyses show the direction and magnitude of the electronic adjustment.
 
-## Module Map
+### Performance at a glance
 
-| Module | Role in this showcase |
-| --- | --- |
-| `features.py` | Builds a small public descriptor view from SMILES strings. |
-| `applicability.py` | Demonstrates the shape of an applicability-domain check. |
-| `model_stub.py` | Provides a deterministic qualitative prediction interface. |
-| `pipeline.py` | Connects input loading, descriptors, AD labels, and outputs. |
-| `visualization.py` | Contains optional local demo plotting code; no result image is committed. |
+The study uses **176 compounds**, divided into training, validation and test sets of **122, 27 and 27**. Five-fold cross-validation within the training set supports hyperparameter tuning, followed by validation-set selection and test-set evaluation.
 
-## Quick Browse
+| Model route reported in the study | Test R² | Test RMSE (log₁₀*k*) |
+|---|---:|---:|
+| RDKit single-branch comparison | 0.759 | 0.816 |
+| **RDKit–CDFT residual fusion** | **0.879** | **0.602** |
+
+These results demonstrate the predictive value of combining structural information with targeted electronic correction. Applicability-domain analysis and experimental comparisons further connect model evaluation with chemical interpretation and practical screening.
+
+## Two application modes
+
+The companion web application organizes prediction around the molecular information available:
+
+| Mode | Input | Output and purpose |
+|---|---|---|
+| **Structure-based screening** | SMILES | Reactivity bands and structural support for prioritizing candidate pollutants. |
+| **CDFT-assisted prediction** | SMILES and 20 CDFT descriptors | Quantitative log₁₀*k* predictions from the full residual-fusion framework. |
+
+The study applies structure-based screening to **384 candidate pollutants across 21 chemical classes**, connecting molecular-level interpretation with candidate selection for further investigation.
+
+## Quick start
+
+Use **Python 3.10 or later** and run these commands from the directory containing this README:
 
 ```bash
+python -m pip install -r requirements.txt
 python scripts/run_demo.py
 ```
 
-The demo writes:
+The example reads [`examples/example_smiles.csv`](examples/example_smiles.csv), extracts structural cues using transparent SMILES-based rules, and produces dimensionless demonstration scores, qualitative tendency bands and example applicability labels. Five molecules are supplied: phenol, aniline, pyridine, imidazole and dichlorobenzene.
 
-- `outputs/demo_predictions.csv`
-- `outputs/demo_tendency_summary.png` when `matplotlib` is available
+A [Conda environment file](environment.yml) is also provided.
 
-Example output columns include:
+## Input and output
 
-- `molecule_id`
-- `tendency_label`
-- `relative_tendency_score`
-- `applicability_label`
-- `explanation`
+To explore your own structures, edit the example CSV, keeping the `molecule_id` and `smiles` columns, then rerun the command:
 
-These outputs are qualitative showcase outputs. They do not reproduce the paper
-model and should not be cited as final quantitative predictions.
-
-## Directory Structure
-
-```text
-.
-|-- README.md
-|-- OPEN_SOURCE_CURATION_REPORT.md
-|-- config/
-|   `-- showcase_config.json
-|-- examples/
-|   `-- example_smiles.csv
-|-- scripts/
-|   `-- run_demo.py
-|-- src/
-|   `-- qsar_showcase/
-|       |-- applicability.py
-|       |-- features.py
-|       |-- model_stub.py
-|       |-- pipeline.py
-|       `-- visualization.py
-`-- outputs/
+```csv
+molecule_id,smiles
+phenol,c1ccccc1O
+aniline,Nc1ccccc1
 ```
 
-## Suggested Public Repository Name
+Results are saved in `outputs/`:
 
-The local folder name `QSAR_Project_v3` is an internal working name. For a public
-GitHub release, a cleaner repository name is recommended, for example:
+- **`demo_predictions.csv`** — per-molecule structural cues, a relative score, a `low` / `medium` / `high` tendency band, an applicability label and a short structural explanation.
+- **`demo_tendency_summary.png`** — a visual comparison of the example scores and tendency bands, generated with Matplotlib.
 
-- `singlet-oxygen-qsar-code-showcase`
-- `1o2-qsar-code-showcase`
+## Repository guide
 
-Using a dedicated public repository avoids exposing internal version history or
-mixing this curated release with other research workspaces.
-
-## Citation
-
-If this repository is used while discussing the study, cite the accompanying
-paper after publication. Until then, reference it as a selected code showcase
-for the manuscript.
+| Location | Contents |
+|---|---|
+| [`scripts/run_demo.py`](scripts/run_demo.py) | Entry point for the example workflow. |
+| [`src/qsar_showcase/`](src/qsar_showcase/) | Structural cues, example scoring, applicability labels and visualization modules. |
+| [`examples/`](examples/) | Example SMILES input table. |
+| `outputs/` | Generated results and summary figure. |
+| [`requirements.txt`](requirements.txt), [`environment.yml`](environment.yml) | Python and Conda environment setup. |
 
 ## License
 
-Code in this curated repository is provided under the MIT License unless noted
-otherwise. Raw data, trained models, result figures, private experimental
-assets, and the complete reproduction workflow are not released here.
+The code is available under the [MIT License](LICENSE).
